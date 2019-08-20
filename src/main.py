@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
+import logging
 import selectors
 import socket
 
-from tls import query_dns
 from conf import get_conf
+from tls import query_dns
 
-HOST = get_conf('host')
-PORT = get_conf('port', t=int)
-DNS_HOST = get_conf('dns_host')
-DNS_PORT = get_conf('dns_port', t=int)
+HOST = get_conf('HOST')
+PORT = get_conf('PORT', t=int)
+DNS_HOST = get_conf('DNS_HOST')
+DNS_PORT = get_conf('DNS_PORT', t=int)
 
 selector = selectors.DefaultSelector()
 
+
 def get_socket(proto, backlog=10):
+    _proto = 'TCP' if (proto == socket.SOCK_STREAM) else 'UDP'
+    logging.debug(f"Creating a {_proto} socket")
     s = socket.socket(socket.AF_INET, proto)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((HOST, PORT))
@@ -27,26 +31,26 @@ def mktcp(data):
     return bytes('\x00' + chr(len(data)) + data.decode('cp1252'), 'utf-8')
 
 def accept_tcp(sock, mask):
-    conn, addr = sock.accept()  # Should be ready
-    print('accepted', conn, 'from', addr)
+    conn, addr = sock.accept()
+    logging.info(f'Accepted connection from {addr}')
     conn.setblocking(False)
     selector.register(conn, selectors.EVENT_READ, readtcp)
 
 def readtcp(conn, mask):
     try:
-        data = conn.recv(1000)  # Should be ready
+        data = conn.recv(1000)
     except Exception as err:
-        print(err)
+        logging.error(err)
         return
 
     if data:
-        print('echoing', repr(data), 'to', conn)
+        logging.debug(f'Sending {repr(data)} to {conn.getpeername()}')
         try:
             conn.send(query_dns(data, DNS_HOST, DNS_PORT))
         except Exception as err:
-            print(err)
+            logging.error(err)
     else:
-        print('closing', conn)
+        logging.debug(f'Closing: {conn.getpeername()}')
         selector.unregister(conn)
         conn.close()
 
@@ -56,19 +60,21 @@ def accept_udp(conn, mask):
     try:
         data, addr = conn.recvfrom(65565)
     except Exception as err:
-        print(err)
+        logging.error(err)
         return
 
-    print('got', repr(data), 'from', addr)
+    logging.info('got', repr(data), 'from', addr)
     try:
         response = query_dns(mktcp(data), DNS_HOST, DNS_PORT)
-        print('sending', repr(response), 'to', addr)
+        logging.debug('sending', repr(response), 'to', addr)
         conn.sendto(response, addr)
     except Exception as err:
-        print(err)
+        logging.error(err)
 
+def main():
+    log_level = get_conf('LOG_LEVEL', logging.WARNING, t=int)
+    logging.basicConfig(level=log_level)
 
-if __name__ == '__main__':
     tcp_socket = get_socket(socket.SOCK_STREAM)
     selector.register(tcp_socket, selectors.EVENT_READ, accept_tcp)
 
@@ -80,3 +86,7 @@ if __name__ == '__main__':
         for key, mask in events:
             callback = key.data
             callback(key.fileobj, mask)
+
+
+if __name__ == '__main__':
+    main()

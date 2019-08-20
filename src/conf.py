@@ -7,9 +7,15 @@ def get_conf(key, default=None, t=str):
         'DNS_HOST': '8.8.8.8',
         'DNS_PORT': 853,
     }
-    value = mockconf.get(key.upper(), default)
-    if t is not str:
-        return t(value)
+    # value = mockconf.get(key.upper(), default)
 
-    return value
-    # return os.getenv(key.upper(), default)
+    # We can't use the second parameter to `getenv` because we don't want to
+    # cast the default value, we just want to return it as-is.
+    value = os.getenv(key)
+    if value:
+        if t is str:
+            return value
+        else:
+            return t(value)
+
+    return default

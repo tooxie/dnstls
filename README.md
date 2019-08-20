@@ -2,6 +2,12 @@
 Solution to the N26 code challenge. This python project is a proxy that accepts
 TCP/UDP DNS queries and delegates them to a TLS-capable DNS server.
 
+It's built with python3, using the new `selectors` module for I/O multiplexing.
+Environment variables are used for configuration, where if one is not found
+(and a default value is not explicitly provided) an exception will be raised to
+prevent missing, required configurations from going unnoticed in production.
+Silent defaults are a common cause of bugs in production systems.
+
 ## Running
 There are 2 ways of running the project:
 * Using docker
@@ -55,12 +61,14 @@ would be to rewrite it in a different language. Also:
 * Write tests
 * Support IPv6
 * Allow log levels to be strings instead of ints
+* Add a healthcheck endpoint that verifies the availability of the external DNS
+server
 * Fix known issues
 
 ## Known issues
-I could not get the UDP support to work completely. It receives the request,
-sends it out to the external DNS server, but I was not able to send it back to
-the original client in the proper format.
+I could not get the UDP support to work. It receives the query, sends it out to
+the external DNS server, but when the response is sent out to the client, it arrives malformed.
+I was not able to send it back to the client in the proper format.
 
 The requests block, so while a request to the external DNS is being made, all
 incoming requests must wait. This is another reason why I would not use Python

@@ -27,9 +27,6 @@ def get_socket(proto, backlog=10):
 
 
 # --- TCP
-def mktcp(data):
-    return bytes('\x00' + chr(len(data)) + data.decode('cp1252'), 'utf-8')
-
 def accept_tcp(sock, mask):
     conn, addr = sock.accept()
     logging.info(f'Accepted connection from {addr}')
@@ -56,6 +53,9 @@ def readtcp(conn, mask):
 
 
 # --- UDP
+def totcp(data):
+    return bytes('\x00' + chr(len(data)) + data.decode('cp1252'), 'utf-8')
+
 def accept_udp(conn, mask):
     try:
         data, addr = conn.recvfrom(65565)
@@ -65,7 +65,7 @@ def accept_udp(conn, mask):
 
     logging.info('got', repr(data), 'from', addr)
     try:
-        response = query_dns(mktcp(data), DNS_HOST, DNS_PORT)
+        response = query_dns(totcp(data), DNS_HOST, DNS_PORT)
         logging.debug('sending', repr(response), 'to', addr)
         conn.sendto(response, addr)
     except Exception as err:
@@ -77,9 +77,11 @@ def main():
 
     tcp_socket = get_socket(socket.SOCK_STREAM)
     selector.register(tcp_socket, selectors.EVENT_READ, accept_tcp)
+    logging.debug(f'Listening on {HOST}:{PORT}/tcp')
 
     udp_socket = get_socket(socket.SOCK_DGRAM)
     selector.register(udp_socket, selectors.EVENT_READ, accept_udp)
+    logging.debug(f'Listening on {HOST}:{PORT}/udp')
 
     while True:
         events = selector.select()

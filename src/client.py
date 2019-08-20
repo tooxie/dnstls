@@ -9,6 +9,7 @@ import dns.query
 # This way is just like nslookup/dig:
 
 if __name__ == '__main__':
+    domain = 'n26.de'
     if len(sys.argv) > 1:
         domain = sys.argv[1]
 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     print('')
     print('The response is:')
 
-    r = method(q, '127.0.0.1', port=3853)
+    r = method(q, '127.0.0.1', port=5353)
     print(r)
     # print('r.answer:', r.answer)
     # print('qname:', qname)

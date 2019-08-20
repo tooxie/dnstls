@@ -1,0 +1,8 @@
+MANIFEST
+*venv/
+build/
+dist/
+dnstls.egg-info/
+__bak/
+__init__.py
+__pycache__/

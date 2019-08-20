@@ -1,2 +1,68 @@
-# dnstls
-DNS over TLS proxy
+# N26's DNS over TLS proxy
+Solution to the N26 code challenge. This python project is a proxy that accepts
+TCP/UDP DNS queries and delegates them to a TLS-capable DNS server.
+
+## Running
+There are 2 ways of running the project:
+* Using docker
+* As a python script
+
+### Using docker
+You can find a `docker-compose.yml` file in the root of the directory that will
+allow you to run the proxy with a simple command:
+```
+docker-compose up --build
+```
+
+### As a python script
+Alternatively, you can run the `main.py` file in the `src` directory, providing
+the necessary configuration:
+```
+$ cd src
+$ HOST=0.0.0.0 PORT=5353 DNS_HOST=8.8.8.8 DNS_PORT=853 python main.py
+```
+
+The software does not make use of any library outside of the standard libraries
+provided by the language.
+
+## Concerns
+Python is a great language, very expressive, that enables developers to be very
+productive, very quickly, as we can see in this project. With few lines of code
+we have a working prototype. On the downside, python is a notable slow language
+that I would avoid for these kind of systems. Instead I would opt for a systems
+language like C or Rust, i.e. a compiled language, that makes better use of the
+system's resources.
+
+My biggest concern would be the fact that far from securing the name resolution
+process, a custom DNS server such as this one could instead increase the attack
+surface. This approach does not protect the incoming query, and could introduce
+new vulnerabilities.
+
+That said, if we used this service internally, say inside a kubernetes cluster,
+in order to make sure that all outgoing DNS queries are TLS-secured, then these
+concerns would be mitigated.
+
+## Deployment
+Deployment of this service would follow standard conventions:
+* Run in multiple instances for redundancy
+* Behind a load balancer
+* Closely monitored
+* Autoscalable
+
+## Improvements
+As mentioned in the _Concerns_ section, the first improvement I would introduce
+would be to rewrite it in a different language. Also:
+* Write tests
+* Support IPv6
+* Allow log levels to be strings instead of ints
+* Fix known issues
+
+## Known issues
+I could not get the UDP support to work completely. It receives the request,
+sends it out to the external DNS server, but I was not able to send it back to
+the original client in the proper format.
+
+The requests block, so while a request to the external DNS is being made, all
+incoming requests must wait. This is another reason why I would not use Python
+for this project, non-blocking code is not one of the strengths of the language
+(to put it mildly).

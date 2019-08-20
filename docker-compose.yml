@@ -1,0 +1,16 @@
+version: '3'
+services:
+    dnstls:
+        image: dnstls
+        build: .
+        tty: true
+        stdin_open: true
+        ports:
+            - "5353:5353/tcp"
+            - "5353:5353/udp"
+        environment:
+            - HOST=0.0.0.0
+            - PORT=5353
+            - DNS_HOST=1.1.1.1
+            - DNS_PORT=853
+            - LOG_LEVEL=10

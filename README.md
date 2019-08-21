@@ -10,6 +10,7 @@ in production. Silent defaults are a source of bugs in production systems.
 
 ## Running
 There are 2 ways of running the project:
+
 * Using docker
 * As a python script
 
@@ -50,6 +51,7 @@ concerns would be mitigated.
 
 ## Deployment
 Deployment of this service would follow standard conventions:
+
 * Run in multiple instances for redundancy
 * Behind a load balancer
 * Closely monitored
@@ -61,6 +63,7 @@ would be to rewrite it in a different language. The reason to use python was to
 solve the given problem instead of falling victim of premature optimization.
 
 Also:
+
 * Write tests
 * Support IPv6
 * Allow log levels to be strings instead of ints, e.g. _debug_ or _error_

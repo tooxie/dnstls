@@ -73,10 +73,6 @@ server
 * Fix known issues
 
 ## Known issues
-UDP support does not work as expected. It receives a DNS query, sends it out to
-the DNS server, but when it gets the response and forwards it to the client, it
-arrives malformed. There is clearly an issue with the UDP->TCP->UDP conversion.
-
 The outgoing requests block the socket, i.e. while a query to the DNS server is
 being made, all incoming requests must wait until we get a response. While it's
 possible to write non-blocking code with Python, it's definitely not one of the

@@ -23,7 +23,7 @@ def get_socket(host, port, backlog=10):
 
 
 def get_handler(selector, event, dns_host, dns_port):
-    """Returns a handler that accepts TCP connections
+    """Returns a handler that accepts TCP connections.
     """
 
     def accept_tcp(sock):
@@ -41,7 +41,7 @@ def get_handler(selector, event, dns_host, dns_port):
     return accept_tcp
 
 def get_read_handler(selector, dns_host, dns_port):
-    """Returns a handler that reads from a TCP socket
+    """Returns a handler that reads from a TCP socket.
     """
 
     def read(conn):
@@ -50,10 +50,10 @@ def get_read_handler(selector, dns_host, dns_port):
         """
 
         try:
-            data = conn.recv(1000)
-        except Exception as err:
-            logging.error(err)
-            return
+            data = conn.recv(1024)
+        except Exception:
+            logging.exception("Error reading from TCP socket")
+            raise
 
         logging.info("Got '%s' from %s over TCP", repr(data), conn.getpeername())
         if data:

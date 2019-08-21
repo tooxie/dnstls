@@ -32,7 +32,7 @@ def to_udp(data):
     return data[2:]
 
 def get_handler(dns_host, dns_port):
-    """Returns a handler that reads UDP data
+    """Returns a handler that reads UDP data.
     """
 
     def read(conn):
@@ -41,9 +41,9 @@ def get_handler(dns_host, dns_port):
 
         try:
             data, addr = conn.recvfrom(65565)
-        except Exception as err:
-            logging.error(err)
-            return
+        except Exception:
+            logging.exception("Error reading UDP data")
+            raise
 
         logging.info("Got %s from %s over UDP", str(data), addr)
         try:

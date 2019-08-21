@@ -41,9 +41,9 @@ def main():
     try:
         while True:
             events = selector.select()
-            for key, mask in events:
+            for key, _ in events:
                 callback = key.data
-                callback(key.fileobj, mask)
+                callback(key.fileobj)
     except KeyboardInterrupt:
         print('Closing sockets... (press ctrl+c again to force)')
         tcp_socket.close()

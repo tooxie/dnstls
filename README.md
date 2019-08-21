@@ -8,6 +8,10 @@ no default value was provided, cannot be found in the environment an exception
 will be raised to prevent missing, required configurations from going unnoticed
 in production. Silent defaults are a source of bugs in production systems.
 
+I tried to make the software as testable as possible, by inverting the
+dependencies through dependency injection. That's why functions like
+`udp.get_handler` receive a `query_dns_fn` function as a parameter.
+
 ## Running
 There are 2 ways of running the project:
 

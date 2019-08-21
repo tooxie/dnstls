@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""Configuration management module.
+"""
+
 import os
 
 def get_conf(key, default=None, t=str):

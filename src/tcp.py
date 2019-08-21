@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Module to hold all the TCP-related methods.
+"""
+
 import logging
 import socket
 
@@ -9,7 +12,7 @@ def get_socket(host, port, backlog=10):
     """Creates a TCP socket and sets it as non-blocking.
     """
 
-    logging.debug(f"Creating a TCP socket")
+    logging.debug("Creating a TCP socket")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((host, port))
@@ -23,19 +26,25 @@ def get_handler(selector, event, dns_host, dns_port):
     """Returns a handler that accepts TCP connections
     """
 
-    def accept_tcp(sock, mask):
+    def accept_tcp(sock):
         """Handler of incoming TCP connections. Will accept the connection and
         register the callback to start reading the incoming data.
         """
 
         conn, addr = sock.accept()
-        logging.info(f"Accepted connection from {addr}")
-        selector.register(conn, event, read(selector, dns_host, dns_port))
+        logging.info("Accepted connection from %s", addr)
+        selector.register(
+            conn,
+            event,
+            get_read_handler(selector, dns_host, dns_port))
 
     return accept_tcp
 
-def read(selector, dns_host, dns_port):
-    def readtcp(conn, mask):
+def get_read_handler(selector, dns_host, dns_port):
+    """Returns a handler that reads from a TCP socket
+    """
+
+    def read(conn):
         """Reads the incoming data and sends the query out to the external DNS.
         It then sends the response back to the original requester.
         """
@@ -46,15 +55,23 @@ def read(selector, dns_host, dns_port):
             logging.error(err)
             return
 
-        logging.info(f"Got '{repr(data)}' from {conn.getpeername()}")
+        logging.info("Got '%s' from %s over TCP", repr(data), conn.getpeername())
         if data:
+            response = None
             try:
-                conn.send(query_dns(data, dns_host, dns_port))
-            except Exception as err:
-                logging.error(err)
+                response = query_dns(data, dns_host, dns_port)
+            except Exception:
+                logging.exception("Error querying the external DNS")
+                raise
+
+            try:
+                conn.send(response)
+            except Exception:
+                logging.exception("Error sending the response back to the client")
+                raise
         else:
-            logging.debug(f"Closing: {conn.getpeername()}")
+            logging.debug("Closing: %s", conn.getpeername())
             selector.unregister(conn)
             conn.close()
 
-    return readtcp
+    return read

@@ -30,7 +30,8 @@ def to_udp(data):
     return data[2:]
 
 def get_handler(query_dns_fn):
-    """Returns a handler that reads UDP data.
+    """Returns a handler that reads UDP data. The function that queries the
+    external DNS is injected through `query_dns_fn`.
     """
 
     def read(conn):
@@ -42,13 +43,19 @@ def get_handler(query_dns_fn):
         except Exception:
             logging.exception("Error reading UDP data")
             raise
-
         logging.info("Got %s from %s over UDP", str(data), addr)
+
         try:
             response = query_dns_fn(to_tcp(data))
-            logging.debug("Sending %s to %s", repr(response), addr)
+        except Exception:
+            logging.exception("Error querying DNS")
+            raise
+
+        logging.debug("Sending %s to %s", repr(response), addr)
+        try:
             conn.sendto(to_udp(response), addr)
-        except Exception as err:
-            logging.error(err)
+        except Exception:
+            logging.exception("Error sending response to client")
+            raise
 
     return read

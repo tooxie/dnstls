@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 import unittest
+from unittest import mock
 import socket
 
 from dnstls import tls
 
-# mock_socket = mock.Mock()
-# mock_socket.recv.return_value = data
-
 
 class TlsTest(unittest.TestCase):
-    def setUp(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # self.sock.
+    def test_query_dns(self):
+        with unittest.mock.patch('socket.socket') as mock_socket:
+            getsockopt = mock.Mock()
+            getsockopt.return_value = socket.SOCK_STREAM
+            mock_socket.return_value = getsockopt
 
-    def tearDown(self):
-        self.sock.close()
+            with unittest.mock.patch('socket.create_connection') as mock_conn:
+                mock_conn.return_value = Mock(spec=)
+                tls.query_dns('foo', '127.0.0.1', 1234)

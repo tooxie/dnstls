@@ -75,6 +75,7 @@ solve the given problem instead of falling victim of premature optimization.
 Also:
 
 * Write more tests
+    * Due to lack of time I was not able to test as much as I'd have liked
 * Support IPv6
 * Allow log levels to be strings instead of ints, e.g. _debug_ or _error_
 * Add a healthcheck endpoint that verifies the availability of the external DNS

@@ -53,8 +53,8 @@ def get_read_handler(query_dns_fn, selector):
             logging.exception("Error reading from TCP socket")
             raise
 
-        logging.info("Got '%s' from %s over TCP", repr(data), conn.getpeername())
         if data:
+            logging.info("Got '%s' from %s over TCP", repr(data), conn.getpeername())
             response = None
             try:
                 response = query_dns_fn(data)

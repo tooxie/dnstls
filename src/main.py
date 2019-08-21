@@ -36,9 +36,9 @@ def main():
         query_dns_fn=lambda data: tls.query_dns(data, DNS_HOST, DNS_PORT))
 
     selector.register(tcp_socket, selectors.EVENT_READ, tcp_handler)
-    logging.debug("Listening on %s:%s/tcp", HOST, PORT)
+    logging.info("Listening on %s:%s/tcp", HOST, PORT)
     selector.register(udp_socket, selectors.EVENT_READ, udp_handler)
-    logging.debug("Listening on %s:%s/udp", HOST, PORT)
+    logging.info("Listening on %s:%s/udp", HOST, PORT)
 
     try:
         while True:

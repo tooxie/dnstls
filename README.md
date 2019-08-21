@@ -1,5 +1,5 @@
 # N26's DNS over TLS proxy
-Solution to the N26 code challenge. This python project is a proxy that accepts
+Solution to the N26 code challenge. This Python project is a proxy that accepts
 TCP/UDP DNS queries and delegates them to a TLS-capable DNS server.
 
 It's built with python3, using the new `selectors` module for I/O multiplexing.
@@ -12,7 +12,7 @@ in production. Silent defaults are a source of bugs in production systems.
 There are 2 ways of running the project:
 
 * Using docker
-* As a python script
+* As a Python script
 
 ### Using docker
 You can find a `docker-compose.yml` file in the root of the directory that will
@@ -21,12 +21,12 @@ allow you to run the proxy with a simple command:
 docker-compose up --build
 ```
 
-### As a python script
+### As a Python script
 Alternatively, you can run the `main.py` file in the `src` directory, providing
 the necessary configuration:
 ```
 $ cd src
-$ HOST=0.0.0.0 PORT=5353 DNS_HOST=8.8.8.8 DNS_PORT=853 python main.py
+$ HOST=0.0.0.0 PORT=5353 DNS_HOST=8.8.8.8 DNS_PORT=853 python3 main.py
 ```
 
 The software does not make use of any library outside of the standard libraries
@@ -35,7 +35,7 @@ provided by the language.
 ## Concerns
 Python is a great language, very expressive, that enables developers to be very
 productive, very quickly, as we can see in this project. With few lines of code
-we have a working prototype. On the downside, python is a notable slow language
+we have a working prototype. On the downside, Python is a notable slow language
 that I would avoid for these kind of systems. Instead I would opt for a systems
 language like C or Rust, i.e. a compiled language, that makes better use of the
 system's resources.
@@ -59,12 +59,12 @@ Deployment of this service would follow standard conventions:
 
 ## Improvements
 As mentioned in the _Concerns_ section, the first improvement I would introduce
-would be to rewrite it in a different language. The reason to use python was to
+would be to rewrite it in a different language. The reason to use Python was to
 solve the given problem instead of falling victim of premature optimization.
 
 Also:
 
-* Write tests
+* Write more tests
 * Support IPv6
 * Allow log levels to be strings instead of ints, e.g. _debug_ or _error_
 * Add a healthcheck endpoint that verifies the availability of the external DNS

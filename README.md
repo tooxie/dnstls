@@ -42,6 +42,14 @@ $ pip install . nose2
 $ python3 -m nose2
 ```
 
+### Manual testing
+There is a DNS client included in the project that I used for manual testing
+during development. You can configure all the same variables as with the
+`dnstls` module. To see the available options, run:
+```
+python3 client.py --help
+```
+
 ## Concerns
 Python is a great language, very expressive, that enables developers to be very
 productive, very quickly, as we can see in this project. With few lines of code

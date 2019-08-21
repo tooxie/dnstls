@@ -6,5 +6,4 @@ WORKDIR /usr/src/dnstls
 COPY src .
 
 EXPOSE 53/tcp 53/udp
-# ENTRYPOINT ["/usr/src/dnstls/entrypoint.sh"]
 CMD ["python3", "/usr/src/dnstls/main.py"]

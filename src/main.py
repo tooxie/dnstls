@@ -40,8 +40,8 @@ def readtcp(conn, mask):
         logging.error(err)
         return
 
+    logging.info(f"Got '{repr(data)}' from {conn.getpeername()}")
     if data:
-        logging.debug(f'Sending {repr(data)} to {conn.getpeername()}')
         try:
             conn.send(query_dns(data, DNS_HOST, DNS_PORT))
         except Exception as err:
@@ -63,10 +63,10 @@ def accept_udp(conn, mask):
         logging.error(err)
         return
 
-    logging.info('got', repr(data), 'from', addr)
+    logging.info(f'Got {str(data)} from {addr}')
     try:
         response = query_dns(totcp(data), DNS_HOST, DNS_PORT)
-        logging.debug('sending', repr(response), 'to', addr)
+        logging.debug(f'Sending {repr(response)} to {addr}')
         conn.sendto(response, addr)
     except Exception as err:
         logging.error(err)

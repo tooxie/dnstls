@@ -3,10 +3,10 @@ Solution to the N26 code challenge. This python project is a proxy that accepts
 TCP/UDP DNS queries and delegates them to a TLS-capable DNS server.
 
 It's built with python3, using the new `selectors` module for I/O multiplexing.
-Environment variables are used for configuration, where if one is not found
-(and a default value is not explicitly provided) an exception will be raised to
-prevent missing, required configurations from going unnoticed in production.
-Silent defaults are a common cause of bugs in production systems.
+The system is configured through environment variables. If a config, for which
+no default value was provided, cannot be found in the environment an exception
+will be raised to prevent missing, required configurations from going unnoticed
+in production. Silent defaults are a source of bugs in production systems.
 
 ## Running
 There are 2 ways of running the project:
@@ -41,8 +41,8 @@ system's resources.
 
 My biggest concern would be the fact that far from securing the name resolution
 process, a custom DNS server such as this one could instead increase the attack
-surface. This approach does not protect the incoming query, and could introduce
-new vulnerabilities.
+surface. This approach does not protect the incoming, not encrypted query which
+could still be sniffed. And even worse, it could introduce new vulnerabilities.
 
 That said, if we used this service internally, say inside a kubernetes cluster,
 in order to make sure that all outgoing DNS queries are TLS-secured, then these
@@ -57,20 +57,28 @@ Deployment of this service would follow standard conventions:
 
 ## Improvements
 As mentioned in the _Concerns_ section, the first improvement I would introduce
-would be to rewrite it in a different language. Also:
+would be to rewrite it in a different language. The reason to use python was to
+solve the given problem instead of falling victim of premature optimization.
+
+Also:
 * Write tests
 * Support IPv6
-* Allow log levels to be strings instead of ints
+* Allow log levels to be strings instead of ints, e.g. _debug_ or _error_
 * Add a healthcheck endpoint that verifies the availability of the external DNS
 server
+* Add support for multiple DNS servers, in case one goes down
+* Export metrics
+    * Like the time it takes for each query
+    * Or the number of queries that cannot be processed succesfuly
 * Fix known issues
 
 ## Known issues
-I could not get the UDP support to work. It receives the query, sends it out to
-the external DNS server, but when the response is sent out to the client, it arrives malformed.
-I was not able to send it back to the client in the proper format.
+UDP support does not work as expected. It receives a DNS query, sends it out to
+the DNS server, but when it gets the response and forwards it to the client, it
+arrives malformed. There is clearly an issue with the UDP->TCP->UDP conversion.
 
-The requests block, so while a request to the external DNS is being made, all
-incoming requests must wait. This is another reason why I would not use Python
-for this project, non-blocking code is not one of the strengths of the language
-(to put it mildly).
+The outgoing requests block the socket, i.e. while a query to the DNS server is
+being made, all incoming requests must wait until we get a response. While it's
+possible to write non-blocking code with Python, it's definitely not one of the
+language's strengths. Were this service ever to see production, this is a good
+reason, in my opinion, to migrate it to a different language.

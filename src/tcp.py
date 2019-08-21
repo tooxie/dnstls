@@ -20,6 +20,9 @@ def get_socket(host, port, backlog=10):
 
 
 def get_handler(selector, event, dns_host, dns_port):
+    """Returns a handler that accepts TCP connections
+    """
+
     def accept_tcp(sock, mask):
         """Handler of incoming TCP connections. Will accept the connection and
         register the callback to start reading the incoming data.

@@ -29,7 +29,10 @@ def to_udp(data):
     return data[2:]
 
 def get_handler(dns_host, dns_port):
-    def accept(conn, mask):
+    """Returns a handler that reads UDP data
+    """
+
+    def read(conn, mask):
         """Receive the query and hand it over to `tls.query_dns`.
         """
 
@@ -47,4 +50,4 @@ def get_handler(dns_host, dns_port):
         except Exception as err:
             logging.error(err)
 
-    return accept
+    return read

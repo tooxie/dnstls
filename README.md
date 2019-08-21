@@ -18,7 +18,7 @@ There are 2 ways of running the project:
 You can find a `docker-compose.yml` file in the root of the directory that will
 allow you to run the proxy with a simple command:
 ```
-docker-compose up --build
+$ docker-compose up --build
 ```
 
 ### As a Python script
@@ -47,7 +47,12 @@ There is a DNS client included in the project that I used for manual testing
 during development. You can configure all the same variables as with the
 `dnstls` module. To see the available options, run:
 ```
-python3 client.py --help
+$ python3 client.py --help
+```
+
+Keep in mind that you will need the `dnspython` module installed:
+```
+$ pip install dnspython
 ```
 
 ## Concerns

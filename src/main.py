@@ -47,7 +47,7 @@ def main():
                 callback = key.data
                 callback(key.fileobj)
     except KeyboardInterrupt:
-        logging.debug('Closing sockets... (press ctrl+c again to force)')
+        logging.debug('Closing sockets... (press Ctrl+C again to force)')
         tcp_socket.close()
         udp_socket.close()
 

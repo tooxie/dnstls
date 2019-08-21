@@ -8,6 +8,7 @@ import selectors
 
 import udp
 import tcp
+import tls
 from conf import get_conf
 
 HOST = get_conf("HOST")
@@ -25,17 +26,18 @@ def main():
     logging.basicConfig(level=log_level)
 
     tcp_socket = tcp.get_socket(HOST, PORT)
-    selector.register(
-        tcp_socket,
-        selectors.EVENT_READ,
-        tcp.get_handler(selector, selectors.EVENT_READ, DNS_HOST, DNS_PORT))
-    logging.debug("Listening on %s:%s/tcp", HOST, PORT)
+    tcp_handler = tcp.get_handler(
+        query_dns_fn=lambda data: tls.query_dns(data, DNS_HOST, DNS_PORT),
+        selector=selector,
+        event=selectors.EVENT_READ)
 
     udp_socket = udp.get_socket(HOST, PORT)
-    selector.register(
-        udp_socket,
-        selectors.EVENT_READ,
-        udp.get_handler(DNS_HOST, DNS_PORT))
+    udp_handler = udp.get_handler(
+        query_dns_fn=lambda data: tls.query_dns(data, DNS_HOST, DNS_PORT))
+
+    selector.register(tcp_socket, selectors.EVENT_READ, tcp_handler)
+    logging.debug("Listening on %s:%s/tcp", HOST, PORT)
+    selector.register(udp_socket, selectors.EVENT_READ, udp_handler)
     logging.debug("Listening on %s:%s/udp", HOST, PORT)
 
     try:

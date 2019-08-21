@@ -5,8 +5,6 @@
 import logging
 import socket
 
-from tls import query_dns
-
 
 def get_socket(host, port):
     """Creates a UDP socket.
@@ -31,12 +29,12 @@ def to_udp(data):
 
     return data[2:]
 
-def get_handler(dns_host, dns_port):
+def get_handler(query_dns_fn):
     """Returns a handler that reads UDP data.
     """
 
     def read(conn):
-        """Receive the query and hand it over to `tls.query_dns`.
+        """Receive the query and hand it over to the injected `query_dns_fn`.
         """
 
         try:
@@ -47,7 +45,7 @@ def get_handler(dns_host, dns_port):
 
         logging.info("Got %s from %s over UDP", str(data), addr)
         try:
-            response = query_dns(to_tcp(data), dns_host, dns_port)
+            response = query_dns_fn(to_tcp(data))
             logging.debug("Sending %s to %s", repr(response), addr)
             conn.sendto(to_udp(response), addr)
         except Exception as err:

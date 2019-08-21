@@ -32,6 +32,16 @@ $ HOST=0.0.0.0 PORT=5353 DNS_HOST=8.8.8.8 DNS_PORT=853 python3 main.py
 The software does not make use of any library outside of the standard libraries
 provided by the language.
 
+## Running the tests
+To run the test suite you'll have to install the `nose2` module:
+```
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+$ pip install --upgrade pip
+$ pip install . nose2
+$ python3 -m nose2
+```
+
 ## Concerns
 Python is a great language, very expressive, that enables developers to be very
 productive, very quickly, as we can see in this project. With few lines of code

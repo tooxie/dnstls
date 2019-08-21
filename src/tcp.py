@@ -5,8 +5,6 @@
 import logging
 import socket
 
-from tls import query_dns
-
 
 def get_socket(host, port, backlog=10):
     """Creates a TCP socket and sets it as non-blocking.
@@ -22,7 +20,7 @@ def get_socket(host, port, backlog=10):
     return s
 
 
-def get_handler(selector, event, dns_host, dns_port):
+def get_handler(query_dns_fn, selector, event):
     """Returns a handler that accepts TCP connections.
     """
 
@@ -36,11 +34,11 @@ def get_handler(selector, event, dns_host, dns_port):
         selector.register(
             conn,
             event,
-            get_read_handler(selector, dns_host, dns_port))
+            get_read_handler(query_dns_fn, selector))
 
     return accept_tcp
 
-def get_read_handler(selector, dns_host, dns_port):
+def get_read_handler(query_dns_fn, selector):
     """Returns a handler that reads from a TCP socket.
     """
 
@@ -59,7 +57,7 @@ def get_read_handler(selector, dns_host, dns_port):
         if data:
             response = None
             try:
-                response = query_dns(data, dns_host, dns_port)
+                response = query_dns_fn(data)
             except Exception:
                 logging.exception("Error querying the external DNS")
                 raise

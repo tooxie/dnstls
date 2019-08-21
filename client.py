@@ -4,33 +4,34 @@ purposes:
     $ python3 -m venv .venv
     $ source .venv/lib/activate
     $ pip install dnspython
-    $ python3 client.py google.com udp
+    $ python client.py --domain=n26.de --proto=udp --host=127.0.0.1 --port=5353
 """
 import sys
+import argparse
 
 import dns.message
 import dns.rdataclass
 import dns.rdatatype
 import dns.query
 
+parser = argparse.ArgumentParser(description='Perform DNS queries')
+parser.add_argument('--domain', default='n26.de', help='The domain to resolve')
+parser.add_argument('--proto', default='tcp', help='The protocol to use')
+parser.add_argument('--host', default='127.0.0.1', help='IP of the DNS server')
+parser.add_argument('--port', default='5353', type=int, help='Port of the DNS server')
+
+args = parser.parse_args()
+
 
 if __name__ == '__main__':
-    domain = 'n26.de'
-    if len(sys.argv) > 1:
-        domain = sys.argv[1]
-
-    if len(sys.argv) > 2 and sys.argv[2] == 'udp':
-        method = dns.query.udp
-    else:
-        method = dns.query.tcp
-
-    qname = dns.name.from_text(domain)
+    method = dns.query.udp if args.proto == 'udp' else dns.query.tcp
+    qname = dns.name.from_text(args.domain)
     q = dns.message.make_query(qname, dns.rdatatype.NS)
     print('The query is:\n', q)
     print('')
     print('The response is:')
 
-    r = method(q, '127.0.0.1', port=5353)
+    r = method(q, args.host, port=args.port)
     print(r)
     print('')
     print('The nameservers are:')
